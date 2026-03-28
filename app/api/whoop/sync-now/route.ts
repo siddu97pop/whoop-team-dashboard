@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getCurrentUser } from '@/lib/session'
-import { backfillUser } from '@/lib/whoop/endpoints'
+import { getRecoveries, getSleeps, getWorkouts } from '@/lib/whoop/endpoints'
 import { upsertRecovery, upsertSleep, upsertWorkout } from '@/lib/supabase/queries'
 import { WhoopRecovery, WhoopSleep, WhoopWorkout, WHOOP_SPORT_NAMES } from '@/lib/whoop/types'
+
+const DAYS = 30
 
 export async function GET() {
   const user = await getCurrentUser()
@@ -10,48 +12,53 @@ export async function GET() {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
   }
 
+  const uid = user.whoop_user_id
+  const start = new Date()
+  start.setDate(start.getDate() - DAYS)
+  const params = { start: start.toISOString() }
+
+  const result: Record<string, unknown> = {}
+
+  // ── Recoveries ────────────────────────────────────────────────
   try {
-    const { recoveries, sleeps, workouts } = await backfillUser(user.whoop_user_id, 90)
-
-    let recoveryErrors = 0
+    const recoveries = await getRecoveries(uid, params)
+    let saved = 0
     for (const r of recoveries) {
-      try {
-        await upsertRecovery(mapRecovery(r, user.whoop_user_id))
-      } catch (e) {
-        recoveryErrors++
-        console.error('Recovery upsert error:', e, JSON.stringify(r))
-      }
+      try { await upsertRecovery(mapRecovery(r, uid)); saved++ }
+      catch (e) { console.error('recovery upsert:', e) }
     }
-
-    let sleepErrors = 0
-    for (const s of sleeps) {
-      try {
-        await upsertSleep(mapSleep(s, user.whoop_user_id))
-      } catch (e) {
-        sleepErrors++
-        console.error('Sleep upsert error:', e, JSON.stringify(s))
-      }
-    }
-
-    let workoutErrors = 0
-    for (const w of workouts) {
-      try {
-        await upsertWorkout(mapWorkout(w, user.whoop_user_id))
-      } catch (e) {
-        workoutErrors++
-        console.error('Workout upsert error:', e, JSON.stringify(w))
-      }
-    }
-
-    return NextResponse.json({
-      ok: true,
-      fetched: { recoveries: recoveries.length, sleeps: sleeps.length, workouts: workouts.length },
-      errors: { recoveries: recoveryErrors, sleeps: sleepErrors, workouts: workoutErrors },
-    })
+    result.recoveries = { fetched: recoveries.length, saved }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e)
-    return NextResponse.json({ ok: false, error: msg }, { status: 500 })
+    result.recoveries = { error: e instanceof Error ? e.message : String(e) }
   }
+
+  // ── Sleeps ────────────────────────────────────────────────────
+  try {
+    const sleeps = await getSleeps(uid, params)
+    let saved = 0
+    for (const s of sleeps) {
+      try { await upsertSleep(mapSleep(s, uid)); saved++ }
+      catch (e) { console.error('sleep upsert:', e) }
+    }
+    result.sleeps = { fetched: sleeps.length, saved }
+  } catch (e) {
+    result.sleeps = { error: e instanceof Error ? e.message : String(e) }
+  }
+
+  // ── Workouts ──────────────────────────────────────────────────
+  try {
+    const workouts = await getWorkouts(uid, params)
+    let saved = 0
+    for (const w of workouts) {
+      try { await upsertWorkout(mapWorkout(w, uid)); saved++ }
+      catch (e) { console.error('workout upsert:', e) }
+    }
+    result.workouts = { fetched: workouts.length, saved }
+  } catch (e) {
+    result.workouts = { error: e instanceof Error ? e.message : String(e) }
+  }
+
+  return NextResponse.json({ ok: true, days: DAYS, ...result })
 }
 
 function mapRecovery(r: WhoopRecovery, whoopUserId: number) {
