@@ -10,7 +10,6 @@ import { RecoveryCard } from '@/components/dashboard/RecoveryCard'
 import { SleepBreakdown } from '@/components/dashboard/SleepBreakdown'
 import { HRVChart } from '@/components/dashboard/HRVChart'
 import { WorkoutList } from '@/components/dashboard/WorkoutList'
-import { formatDate } from '@/lib/utils'
 
 export const revalidate = 300 // revalidate every 5 min
 
@@ -75,6 +74,12 @@ export default async function DashboardPage() {
           performance={sleep?.sleep_performance_pct ?? null}
           consistency={sleep?.sleep_consistency_pct ?? null}
           scoreState={(sleep?.score_state as 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE') ?? 'PENDING_SCORE'}
+          respiratoryRate={sleep?.respiratory_rate ?? null}
+          disturbanceCount={sleep?.disturbance_count ?? null}
+          sleepCycleCount={sleep?.sleep_cycle_count ?? null}
+          baselineMs={sleep?.baseline_milli ?? null}
+          needFromSleepDebtMs={sleep?.need_from_sleep_debt_milli ?? null}
+          needFromRecentStrainMs={sleep?.need_from_recent_strain_milli ?? null}
         />
       </div>
 

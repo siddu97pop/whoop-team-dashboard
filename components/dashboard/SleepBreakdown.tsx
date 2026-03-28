@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { SLEEP_STAGE_COLORS, msToHoursMinutes, formatPercent } from '@/lib/utils'
-import { Moon } from 'lucide-react'
+import { Moon, Wind, Zap, RefreshCw } from 'lucide-react'
 
 interface SleepBreakdownProps {
   totalInBedMs: number | null
@@ -15,15 +15,15 @@ interface SleepBreakdownProps {
   performance: number | null
   consistency: number | null
   scoreState: 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE'
+  // New insight props
+  respiratoryRate: number | null
+  disturbanceCount: number | null
+  sleepCycleCount: number | null
+  baselineMs: number | null
+  needFromSleepDebtMs: number | null
+  needFromRecentStrainMs: number | null
   loading?: boolean
 }
-
-const STAGES = [
-  { key: 'deep',  label: 'Deep',  color: SLEEP_STAGE_COLORS.deep },
-  { key: 'rem',   label: 'REM',   color: SLEEP_STAGE_COLORS.rem },
-  { key: 'light', label: 'Light', color: SLEEP_STAGE_COLORS.light },
-  { key: 'awake', label: 'Awake', color: SLEEP_STAGE_COLORS.awake },
-] as const
 
 export function SleepBreakdown({
   totalInBedMs,
@@ -35,6 +35,12 @@ export function SleepBreakdown({
   performance,
   consistency,
   scoreState,
+  respiratoryRate,
+  disturbanceCount,
+  sleepCycleCount,
+  baselineMs,
+  needFromSleepDebtMs,
+  needFromRecentStrainMs,
   loading = false,
 }: SleepBreakdownProps) {
   if (loading) return <SleepBreakdownSkeleton />
@@ -46,6 +52,17 @@ export function SleepBreakdown({
     { key: 'light', label: 'Light', ms: lightMs ?? 0, color: SLEEP_STAGE_COLORS.light },
     { key: 'awake', label: 'Awake', ms: awakeMs ?? 0, color: SLEEP_STAGE_COLORS.awake },
   ]
+
+  // Sleep Need calculation
+  const totalNeedMs = (baselineMs ?? 0) + (needFromSleepDebtMs ?? 0) + (needFromRecentStrainMs ?? 0)
+  const hasNeedData = totalNeedMs > 0 && totalInBedMs != null
+  const needFillPct = hasNeedData ? Math.min((totalInBedMs! / totalNeedMs) * 100, 100) : 0
+  const needDeltaMs = hasNeedData ? totalInBedMs! - totalNeedMs : null
+  const needColor =
+    needDeltaMs == null ? '#94a3b8'
+    : needDeltaMs >= 0 ? '#22c55e'
+    : needDeltaMs >= -1_800_000 ? '#f59e0b'   // within 30 min
+    : '#ef4444'
 
   const isEmpty = !totalInBedMs || scoreState !== 'SCORED'
 
@@ -108,11 +125,60 @@ export function SleepBreakdown({
               ))}
             </div>
 
+            {/* Sleep Need vs Actual */}
+            {hasNeedData && (
+              <div className="mb-5 rounded-lg bg-muted p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-medium text-foreground">Sleep Need</span>
+                  <span
+                    className="text-xs font-semibold tabular-nums"
+                    style={{ color: needColor }}
+                  >
+                    {needDeltaMs != null && needDeltaMs >= 0
+                      ? `+${msToHoursMinutes(needDeltaMs)} surplus`
+                      : needDeltaMs != null
+                      ? `${msToHoursMinutes(Math.abs(needDeltaMs))} deficit`
+                      : '—'}
+                  </span>
+                </div>
+                {/* Progress bar */}
+                <div className="h-2 w-full rounded-full bg-border overflow-hidden mb-2">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${needFillPct}%`, backgroundColor: needColor }}
+                  />
+                </div>
+                <div className="flex justify-between text-[10px] text-muted-foreground tabular-nums">
+                  <span>Got {msToHoursMinutes(totalInBedMs)}</span>
+                  <span>Needed {msToHoursMinutes(totalNeedMs)}</span>
+                </div>
+              </div>
+            )}
+
             {/* Score row */}
-            <div className="grid grid-cols-3 gap-2 border-t border-border pt-4">
+            <div className="grid grid-cols-3 gap-2 border-t border-border pt-4 mb-4">
               <ScorePill label="Efficiency"   value={formatPercent(efficiency)}   rawValue={efficiency} />
               <ScorePill label="Performance"  value={formatPercent(performance)}  rawValue={performance} />
               <ScorePill label="Consistency"  value={formatPercent(consistency)}  rawValue={consistency} />
+            </div>
+
+            {/* Mini stats — respiratory rate, disturbances, cycles */}
+            <div className="grid grid-cols-3 gap-2">
+              <MiniStat
+                icon={Wind}
+                label="Resp. Rate"
+                value={respiratoryRate != null ? `${respiratoryRate.toFixed(1)} rpm` : '—'}
+              />
+              <MiniStat
+                icon={Zap}
+                label="Disturbances"
+                value={disturbanceCount != null ? String(disturbanceCount) : '—'}
+              />
+              <MiniStat
+                icon={RefreshCw}
+                label="Cycles"
+                value={sleepCycleCount != null ? String(sleepCycleCount) : '—'}
+              />
             </div>
           </>
         )}
@@ -137,6 +203,16 @@ function ScorePill({ label, value, rawValue }: { label: string; value: string; r
   )
 }
 
+function MiniStat({ icon: Icon, label, value }: { icon: React.ElementType; label: string; value: string }) {
+  return (
+    <div className="flex flex-col items-center rounded-lg bg-muted py-2 px-1">
+      <Icon className="h-3 w-3 text-muted-foreground mb-1" aria-hidden="true" />
+      <span className="text-[10px] text-muted-foreground mb-0.5">{label}</span>
+      <span className="text-xs font-semibold tabular-nums text-foreground">{value}</span>
+    </div>
+  )
+}
+
 function EmptyState({ state }: { state: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -154,12 +230,16 @@ function SleepBreakdownSkeleton() {
       <CardHeader><Skeleton className="h-4 w-40" /></CardHeader>
       <CardContent className="space-y-4">
         <Skeleton className="h-9 w-28" />
-        <Skeleton className="h-4 w-full rounded-full" />
+        <Skeleton className="h-5 w-full rounded-full" />
         <div className="grid grid-cols-2 gap-2">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-5" />)}
         </div>
+        <Skeleton className="h-16 w-full rounded-lg" />
         <div className="grid grid-cols-3 gap-2 pt-2">
           {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-12 rounded-lg" />)}
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-14 rounded-lg" />)}
         </div>
       </CardContent>
     </Card>
