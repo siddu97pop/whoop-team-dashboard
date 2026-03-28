@@ -17,25 +17,39 @@ export async function GET() {
   const base = 'https://api.prod.whoop.com/developer/v1'
   const h = { Authorization: `Bearer ${user.access_token}` }
 
-  const [profileRes, bodyRes, cycleRes, recoveryRes, sleepRes, workoutRes] = await Promise.all([
-    fetch(`${base}/user/profile/basic`, { headers: h }),
-    fetch(`${base}/user/measurement/body`, { headers: h }),
-    fetch(`${base}/cycle?limit=1`, { headers: h }),
-    fetch(`${base}/recovery?limit=1`, { headers: h }),
-    fetch(`${base}/activity/sleep?limit=1`, { headers: h }),
-    fetch(`${base}/activity/workout?limit=1`, { headers: h }),
-  ])
+  const read = (r: Response) => r.text().then(t => ({ status: r.status, body: t.slice(0, 200) }))
 
-  const read = (r: Response) => r.text().then(t => ({ status: r.status, body: t.slice(0, 150) }))
-  const [profile, body, cycle, recovery, sleep, workout] = await Promise.all([
-    read(profileRes), read(bodyRes), read(cycleRes),
-    read(recoveryRes), read(sleepRes), read(workoutRes),
-  ])
+  // First get latest cycle ID
+  const cycleListRes = await fetch(`${base}/cycle?limit=1`, { headers: h })
+  const cycleListText = await cycleListRes.text()
+  let latestCycleId: number | null = null
+  try {
+    const parsed = JSON.parse(cycleListText)
+    latestCycleId = parsed?.records?.[0]?.id ?? null
+  } catch { /* ignore */ }
+
+  const requests: Record<string, Promise<Response>> = {
+    profile: fetch(`${base}/user/profile/basic`, { headers: h }),
+    cycle_collection: fetch(`${base}/cycle?limit=1`, { headers: h }),
+    recovery_collection: fetch(`${base}/recovery?limit=1`, { headers: h }),
+    sleep_collection: fetch(`${base}/activity/sleep?limit=1`, { headers: h }),
+    workout_collection: fetch(`${base}/activity/workout?limit=1`, { headers: h }),
+  }
+
+  if (latestCycleId) {
+    requests[`recovery_by_cycle_${latestCycleId}`] = fetch(`${base}/recovery/${latestCycleId}`, { headers: h })
+  }
+
+  const entries = Object.entries(requests)
+  const results = await Promise.all(entries.map(([, p]) => p.then(read)))
+  const endpoints: Record<string, unknown> = {}
+  entries.forEach(([key], i) => { endpoints[key] = results[i] })
 
   return NextResponse.json({
     token_expires_at: user.token_expires_at,
     is_expired: isExpired,
     minutes_until_expiry: minutesUntilExpiry,
-    endpoints: { profile, body, cycle, recovery, sleep, workout },
+    latest_cycle_id: latestCycleId,
+    endpoints,
   })
 }
