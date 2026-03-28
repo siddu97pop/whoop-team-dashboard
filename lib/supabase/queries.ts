@@ -34,6 +34,7 @@ export async function upsertWhoopUser(user: {
   access_token: string
   refresh_token: string
   token_expires_at: string
+  is_active?: boolean
 }) {
   const db = createServiceClient()
   const { data, error } = await db

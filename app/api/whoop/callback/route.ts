@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
     access_token,
     refresh_token,
     token_expires_at: expiresAt,
+    is_active: true, // always re-activate on reconnect
   })
 
   // Trigger background 90-day backfill — waitUntil keeps the function alive on Vercel
