@@ -109,13 +109,17 @@ export function SleepCharts({ sleeps }: SleepChartsProps) {
               <YAxis tick={TICK} tickLine={false} axisLine={false} unit="h" />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
+                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
                 labelFormatter={formatDate}
                 formatter={(v: number, name: string) => [
                   `${v.toFixed(1)}h`,
                   name.charAt(0).toUpperCase() + name.slice(1),
                 ]}
               />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Legend
+                wrapperStyle={{ fontSize: 11 }}
+                formatter={(value) => <span style={{ color: '#ffffff' }}>{value}</span>}
+              />
               <Bar dataKey="deep"  stackId="a" fill={SLEEP_STAGE_COLORS.deep}  name="Deep"  />
               <Bar dataKey="rem"   stackId="a" fill={SLEEP_STAGE_COLORS.rem}   name="REM"   />
               <Bar dataKey="light" stackId="a" fill={SLEEP_STAGE_COLORS.light} name="Light" />
@@ -138,10 +142,14 @@ export function SleepCharts({ sleeps }: SleepChartsProps) {
               <YAxis tick={TICK} tickLine={false} axisLine={false} unit="%" domain={[0, 100]} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
+                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
                 labelFormatter={formatDate}
                 formatter={(v: number, name: string) => [`${v.toFixed(0)}%`, name.charAt(0).toUpperCase() + name.slice(1)]}
               />
-              <Legend wrapperStyle={{ fontSize: 11 }} />
+              <Legend
+                wrapperStyle={{ fontSize: 11 }}
+                formatter={(value) => <span style={{ color: '#ffffff' }}>{value}</span>}
+              />
               <Line type="monotone" dataKey="efficiency"   stroke="#0F6E56" strokeWidth={2} dot={false} connectNulls name="Efficiency" />
               <Line type="monotone" dataKey="consistency"  stroke="#6366f1" strokeWidth={2} dot={false} connectNulls name="Consistency" strokeDasharray="4 2" />
             </LineChart>
