@@ -52,7 +52,7 @@ export function RecoveryCard({
                 <AnimatedNumber
                   value={recoveryScore}
                   className="text-2xl font-bold tabular-nums leading-none"
-                  style={{ color: ringColor } as React.CSSProperties}
+                  style={ringColor}
                 />
               ) : (
                 <span className="text-sm text-muted-foreground">

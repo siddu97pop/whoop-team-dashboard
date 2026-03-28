@@ -8,6 +8,7 @@ interface AnimatedNumberProps {
   decimals?: number
   suffix?: string
   className?: string
+  style?: string // colour string e.g. '#0F6E56'
 }
 
 export function AnimatedNumber({
@@ -16,6 +17,7 @@ export function AnimatedNumber({
   decimals = 0,
   suffix = '',
   className,
+  style,
 }: AnimatedNumberProps) {
   const [display, setDisplay] = useState(0)
   const startRef = useRef<number | null>(null)
@@ -45,7 +47,7 @@ export function AnimatedNumber({
   }, [value, duration, decimals])
 
   return (
-    <span className={className}>
+    <span className={className} style={style ? { color: style } : undefined}>
       {display.toFixed(decimals)}
       {suffix}
     </span>
