@@ -40,7 +40,7 @@ export interface WhoopRecoveryScore {
 
 export interface WhoopRecovery {
   cycle_id: number
-  sleep_id: number
+  sleep_id: string
   user_id: number
   created_at: string
   updated_at: string
@@ -79,7 +79,7 @@ export interface WhoopSleepScore {
 }
 
 export interface WhoopSleep {
-  id: number
+  id: string
   user_id: number
   created_at: string
   updated_at: string
@@ -116,7 +116,7 @@ export interface WhoopWorkoutScore {
 }
 
 export interface WhoopWorkout {
-  id: number
+  id: string
   user_id: number
   created_at: string
   updated_at: string

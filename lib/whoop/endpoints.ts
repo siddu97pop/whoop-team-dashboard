@@ -9,7 +9,7 @@ import {
   WhoopPaginatedResponse,
 } from './types'
 
-const BASE = 'https://api.prod.whoop.com/developer/v1'
+const BASE = 'https://api.prod.whoop.com/developer/v2'
 
 // ── Pagination helper ─────────────────────────────────────────
 

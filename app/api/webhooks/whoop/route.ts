@@ -103,7 +103,7 @@ async function processWebhookEvent(event: WhoopWebhookEvent) {
     }
 
     case 'sleep.deleted': {
-      await deleteSleep(parseInt(id, 10))
+      await deleteSleep(id)
       break
     }
 
@@ -136,7 +136,7 @@ async function processWebhookEvent(event: WhoopWebhookEvent) {
     }
 
     case 'workout.deleted': {
-      await deleteWorkout(parseInt(id, 10))
+      await deleteWorkout(id)
       break
     }
 
