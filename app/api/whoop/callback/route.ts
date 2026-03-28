@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { waitUntil } from '@vercel/functions'
 import { upsertWhoopUser, upsertRecovery, upsertSleep, upsertWorkout } from '@/lib/supabase/queries'
 import { backfillUser } from '@/lib/whoop/endpoints'
 import { WhoopSleep, WhoopRecovery, WhoopWorkout, WHOOP_SPORT_NAMES } from '@/lib/whoop/types'
@@ -83,9 +84,11 @@ export async function GET(request: NextRequest) {
     token_expires_at: expiresAt,
   })
 
-  // Trigger background 90-day backfill (fire and forget)
-  runBackfill(whoopUserId).catch((err) =>
-    console.error(`Backfill failed for user ${whoopUserId}:`, err)
+  // Trigger background 90-day backfill — waitUntil keeps the function alive on Vercel
+  waitUntil(
+    runBackfill(whoopUserId).catch((err) =>
+      console.error(`Backfill failed for user ${whoopUserId}:`, err)
+    )
   )
 
   // Set session cookie so the dashboard knows who's logged in
