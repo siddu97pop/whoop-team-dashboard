@@ -120,7 +120,7 @@ function Vital({
   iconColor?: string
 }) {
   return (
-    <div className="flex items-center gap-2.5 rounded-lg bg-muted/50 px-3 py-2.5">
+    <div className="flex items-center gap-2.5 rounded-lg bg-muted px-3 py-2.5">
       <Icon
         className="h-3.5 w-3.5 flex-shrink-0"
         style={{ color: iconColor }}

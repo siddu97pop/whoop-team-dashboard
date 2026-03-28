@@ -11,8 +11,6 @@ import { SleepBreakdown } from '@/components/dashboard/SleepBreakdown'
 import { HRVChart } from '@/components/dashboard/HRVChart'
 import { WorkoutList } from '@/components/dashboard/WorkoutList'
 import { formatDate } from '@/lib/utils'
-import Link from 'next/link'
-import { Users, Moon, Dumbbell, Activity } from 'lucide-react'
 
 export const revalidate = 300 // revalidate every 5 min
 
@@ -48,7 +46,7 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Page header */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
@@ -91,28 +89,6 @@ export default async function DashboardPage() {
       {/* Recent workouts */}
       <WorkoutList workouts={workouts as Parameters<typeof WorkoutList>[0]['workouts']} limit={5} />
 
-      {/* Quick links */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'Team Overview',   href: '/dashboard/team',     Icon: Users,    color: '#6366f1' },
-          { label: 'Sleep Analytics', href: '/dashboard/sleep',    Icon: Moon,     color: '#38bdf8' },
-          { label: 'Workout Log',     href: '/dashboard/workouts', Icon: Dumbbell, color: '#0F6E56' },
-          { label: 'HRV Deep Dive',   href: '/dashboard/hrv',      Icon: Activity, color: '#f59e0b' },
-        ].map(({ label, href, Icon, color }) => (
-          <Link
-            key={href}
-            href={href}
-            className="group flex items-center gap-2.5 rounded-lg border border-border bg-card px-4 py-3 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted hover:border-border/80 transition-colors"
-          >
-            <Icon
-              className="h-3.5 w-3.5 flex-shrink-0 transition-colors"
-              style={{ color }}
-              aria-hidden="true"
-            />
-            <span>{label}</span>
-          </Link>
-        ))}
-      </div>
     </div>
   )
 }

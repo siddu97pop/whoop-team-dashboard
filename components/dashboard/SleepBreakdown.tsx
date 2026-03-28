@@ -130,7 +130,7 @@ function scoreColor(v: number | null | undefined): string {
 
 function ScorePill({ label, value, rawValue }: { label: string; value: string; rawValue?: number | null }) {
   return (
-    <div className="flex flex-col items-center rounded-lg bg-muted/50 py-2 px-1">
+    <div className="flex flex-col items-center rounded-lg bg-muted py-2 px-1">
       <span className="text-[10px] text-muted-foreground mb-0.5">{label}</span>
       <span className={`text-sm font-semibold tabular-nums ${scoreColor(rawValue)}`}>{value}</span>
     </div>

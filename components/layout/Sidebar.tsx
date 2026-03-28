@@ -74,10 +74,10 @@ export function Sidebar({ mobileOpen = false, onMobileClose }: SidebarProps) {
               href={href}
               onClick={onMobileClose}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-150 cursor-pointer',
+                'flex items-center gap-3 rounded-lg py-2.5 text-sm font-medium transition-colors duration-150 cursor-pointer border-l-2',
                 isActive
-                  ? 'bg-primary/10 text-primary dark:bg-primary/20'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? 'bg-primary/10 text-primary dark:bg-primary/20 border-primary pl-[10px] pr-3'
+                  : 'text-muted-foreground hover:bg-muted hover:text-foreground border-transparent px-3'
               )}
               aria-current={isActive ? 'page' : undefined}
             >
