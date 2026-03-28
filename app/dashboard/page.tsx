@@ -59,21 +59,20 @@ export default async function DashboardPage() {
         <p className="text-sm text-muted-foreground mt-0.5">{today}</p>
       </div>
 
-      {/* 3-ring overview */}
-      <DailyRingsCard
-        recoveryScore={recovery?.recovery_score ?? null}
-        recoveryState={(recovery?.score_state as 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE') ?? 'PENDING_SCORE'}
-        sleepPerformance={sleep?.sleep_performance_pct ?? null}
-        sleepState={(sleep?.score_state as 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE') ?? 'PENDING_SCORE'}
-        todayStrain={todayStrain > 0 ? todayStrain : null}
-        hrv={recovery?.hrv_rmssd_milli ?? null}
-        restingHR={recovery?.resting_heart_rate ?? null}
-        spo2={recovery?.spo2_percentage ?? null}
-        skinTemp={recovery?.skin_temp_celsius ?? null}
-      />
-
-      {/* Sleep breakdown */}
-      <SleepBreakdown
+      {/* Top row — Rings card + Sleep breakdown side by side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <DailyRingsCard
+          recoveryScore={recovery?.recovery_score ?? null}
+          recoveryState={(recovery?.score_state as 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE') ?? 'PENDING_SCORE'}
+          sleepPerformance={sleep?.sleep_performance_pct ?? null}
+          sleepState={(sleep?.score_state as 'SCORED' | 'PENDING_SCORE' | 'UNSCORABLE') ?? 'PENDING_SCORE'}
+          todayStrain={todayStrain > 0 ? todayStrain : null}
+          hrv={recovery?.hrv_rmssd_milli ?? null}
+          restingHR={recovery?.resting_heart_rate ?? null}
+          spo2={recovery?.spo2_percentage ?? null}
+          skinTemp={recovery?.skin_temp_celsius ?? null}
+        />
+        <SleepBreakdown
         totalInBedMs={sleep?.total_in_bed_milli ?? null}
         deepMs={sleep?.total_deep_milli ?? null}
         remMs={sleep?.total_rem_milli ?? null}
@@ -89,7 +88,8 @@ export default async function DashboardPage() {
         baselineMs={sleep?.baseline_milli ?? null}
         needFromSleepDebtMs={sleep?.need_from_sleep_debt_milli ?? null}
         needFromRecentStrainMs={sleep?.need_from_recent_strain_milli ?? null}
-      />
+        />
+      </div>
 
       {/* HRV trend */}
       <HRVChart

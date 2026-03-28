@@ -87,7 +87,7 @@ export function DailyRingsCard({
             decimals={0}
           />
 
-          {/* Recovery — centre, slightly larger */}
+          {/* Recovery */}
           <Ring
             value={recoveryScore}
             max={100}
@@ -97,7 +97,6 @@ export function DailyRingsCard({
             subtitle={recoveryLabel(recoveryScore, recoveryState)}
             unit="%"
             decimals={0}
-            large
           />
 
           {/* Strain */}
@@ -136,7 +135,6 @@ function Ring({
   subtitle,
   unit,
   decimals = 0,
-  large = false,
 }: {
   value: number | null
   max: number
@@ -146,31 +144,24 @@ function Ring({
   subtitle: string
   unit: string
   decimals?: number
-  large?: boolean
 }) {
   const fillDeg = scored && value != null ? Math.min((value / max) * 360, 360) : 0
-  const outerSize = large ? 'h-44 w-44' : 'h-36 w-36'
-  const innerPx   = large ? 136 : 108
-  const numSize   = large ? 'text-5xl' : 'text-4xl'
 
   return (
     <div className="flex flex-col items-center gap-3">
       <div
-        className={`relative flex ${outerSize} flex-shrink-0 items-center justify-center rounded-full`}
+        className="relative flex h-36 w-36 flex-shrink-0 items-center justify-center rounded-full"
         style={{ background: `conic-gradient(${color} ${fillDeg}deg, hsl(var(--muted)) 0deg)` }}
         role="img"
         aria-label={`${title}: ${value ?? 'N/A'}`}
       >
-        <div
-          className="flex flex-col items-center justify-center rounded-full bg-card"
-          style={{ width: innerPx, height: innerPx }}
-        >
+        <div className="flex h-[108px] w-[108px] flex-col items-center justify-center rounded-full bg-card">
           {scored && value != null ? (
             <>
               <AnimatedNumber
                 value={value}
                 decimals={decimals}
-                className={`${numSize} font-bold tabular-nums leading-none`}
+                className="text-4xl font-bold tabular-nums leading-none"
                 style={color}
               />
               <span className="text-xs text-muted-foreground mt-1">{unit}</span>
