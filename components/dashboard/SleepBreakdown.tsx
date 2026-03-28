@@ -72,7 +72,7 @@ export function SleepBreakdown({
 
             {/* Stage bar */}
             <div
-              className="flex h-4 w-full overflow-hidden rounded-full mb-4"
+              className="flex h-5 w-full overflow-hidden rounded-full mb-4"
               role="img"
               aria-label="Sleep stage breakdown"
             >
@@ -110,9 +110,9 @@ export function SleepBreakdown({
 
             {/* Score row */}
             <div className="grid grid-cols-3 gap-2 border-t border-border pt-4">
-              <ScorePill label="Efficiency"   value={formatPercent(efficiency)} />
-              <ScorePill label="Performance"  value={formatPercent(performance)} />
-              <ScorePill label="Consistency"  value={formatPercent(consistency)} />
+              <ScorePill label="Efficiency"   value={formatPercent(efficiency)}   rawValue={efficiency} />
+              <ScorePill label="Performance"  value={formatPercent(performance)}  rawValue={performance} />
+              <ScorePill label="Consistency"  value={formatPercent(consistency)}  rawValue={consistency} />
             </div>
           </>
         )}
@@ -121,11 +121,18 @@ export function SleepBreakdown({
   )
 }
 
-function ScorePill({ label, value }: { label: string; value: string }) {
+function scoreColor(v: number | null | undefined): string {
+  if (v == null) return 'text-foreground'
+  if (v >= 80) return 'text-green-500 dark:text-green-400'
+  if (v >= 60) return 'text-yellow-500 dark:text-yellow-400'
+  return 'text-red-500 dark:text-red-400'
+}
+
+function ScorePill({ label, value, rawValue }: { label: string; value: string; rawValue?: number | null }) {
   return (
     <div className="flex flex-col items-center rounded-lg bg-muted/50 py-2 px-1">
       <span className="text-[10px] text-muted-foreground mb-0.5">{label}</span>
-      <span className="text-sm font-semibold tabular-nums text-foreground">{value}</span>
+      <span className={`text-sm font-semibold tabular-nums ${scoreColor(rawValue)}`}>{value}</span>
     </div>
   )
 }

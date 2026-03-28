@@ -84,10 +84,10 @@ export const RECOVERY_TEXT: Record<RecoveryZone, string> = {
 // ── Sleep stage colors ───────────────────────────────────────
 
 export const SLEEP_STAGE_COLORS = {
-  deep: '#0F6E56',   // WHOOP teal (deep/SWS)
-  rem: '#6366f1',    // indigo
-  light: '#94a3b8',  // slate
-  awake: '#e2e8f0',  // light gray
+  deep:  '#0F6E56',  // WHOOP teal  — restorative deep/SWS
+  rem:   '#6366f1',  // indigo      — vivid REM/dreaming
+  light: '#38bdf8',  // sky-400     — light transitional sleep
+  awake: '#fb923c',  // orange-400  — awake/aroused
 } as const
 
 // ── Score state display ──────────────────────────────────────
