@@ -35,9 +35,6 @@ const STRAIN_COLOR = (s: number) => {
   return '#0F6E56'
 }
 
-// HR zone colors: Z0 (below aerobic) → Z5 (max effort)
-const ZONE_COLORS = ['#cbd5e1', '#38bdf8', '#4ade80', '#facc15', '#fb923c', '#ef4444']
-const ZONE_LABELS = ['Z0', 'Z1', 'Z2', 'Z3', 'Z4', 'Z5']
 
 export function WorkoutList({ workouts, limit = 5, loading = false }: WorkoutListProps) {
   if (loading) return <WorkoutListSkeleton />
@@ -64,99 +61,44 @@ export function WorkoutList({ workouts, limit = 5, loading = false }: WorkoutLis
               const duration = durationMs(w.start_time, w.end_time)
               const color = w.strain != null ? STRAIN_COLOR(w.strain) : undefined
 
-              // Build zone segments
-              const zoneMills = [
-                w.zone_0_milli ?? 0,
-                w.zone_1_milli ?? 0,
-                w.zone_2_milli ?? 0,
-                w.zone_3_milli ?? 0,
-                w.zone_4_milli ?? 0,
-                w.zone_5_milli ?? 0,
-              ]
-              const totalZoneMs = zoneMills.reduce((a, b) => a + b, 0)
-              const hasZones = w.score_state === 'SCORED' && totalZoneMs > 0
-
               return (
-                <li key={w.id} className="py-3 first:pt-0">
-                  {/* Top row: icon + name + strain */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div
-                        className="h-8 w-8 rounded-lg flex-shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: `${color}18` }}
-                        aria-hidden="true"
-                      >
-                        <Dumbbell className="h-3.5 w-3.5" style={{ color }} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {w.sport_name ?? 'Activity'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(w.start_time)} · {msToHoursMinutes(duration)}
-                          {w.avg_heart_rate && ` · ${w.avg_heart_rate}`}
-                          {w.max_heart_rate && ` → ${w.max_heart_rate} bpm`}
-                          {w.kilojoule != null && ` · ${formatKilojoules(w.kilojoule)}`}
-                        </p>
-                      </div>
+                <li key={w.id} className="flex items-center justify-between py-3 first:pt-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className="h-8 w-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                      style={{ backgroundColor: `${color}18` }}
+                      aria-hidden="true"
+                    >
+                      <Dumbbell className="h-3.5 w-3.5" style={{ color }} />
                     </div>
-                    <div className="flex-shrink-0 ml-3 text-right">
-                      {w.score_state === 'SCORED' && w.strain != null ? (
-                        <span
-                          className="text-sm font-semibold tabular-nums"
-                          style={{ color }}
-                          aria-label={`Strain: ${w.strain.toFixed(1)}`}
-                        >
-                          {w.strain.toFixed(1)}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">
-                          {w.score_state === 'PENDING_SCORE' ? '…' : 'N/A'}
-                        </span>
-                      )}
-                      <p className="text-[10px] text-muted-foreground">strain</p>
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {w.sport_name ?? 'Activity'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDate(w.start_time)} · {msToHoursMinutes(duration)}
+                        {w.avg_heart_rate && ` · ${w.avg_heart_rate}`}
+                        {w.max_heart_rate && ` → ${w.max_heart_rate} bpm`}
+                        {w.kilojoule != null && ` · ${formatKilojoules(w.kilojoule)}`}
+                      </p>
                     </div>
                   </div>
-
-                  {/* HR Zone bar */}
-                  {hasZones && (
-                    <div className="mt-2 pl-11">
-                      <div
-                        className="flex h-2 w-full overflow-hidden rounded-full"
-                        role="img"
-                        aria-label="Heart rate zone breakdown"
+                  <div className="flex-shrink-0 ml-3 text-right">
+                    {w.score_state === 'SCORED' && w.strain != null ? (
+                      <span
+                        className="text-sm font-semibold tabular-nums"
+                        style={{ color }}
+                        aria-label={`Strain: ${w.strain.toFixed(1)}`}
                       >
-                        {zoneMills.map((ms, i) => {
-                          const pct = (ms / totalZoneMs) * 100
-                          if (pct < 1) return null
-                          return (
-                            <div
-                              key={i}
-                              className="h-full transition-all duration-500"
-                              style={{ width: `${pct}%`, backgroundColor: ZONE_COLORS[i] }}
-                              title={`${ZONE_LABELS[i]}: ${msToHoursMinutes(ms)}`}
-                            />
-                          )
-                        })}
-                      </div>
-                      {/* Zone legend — only show zones that exist */}
-                      <div className="flex gap-3 mt-1.5 flex-wrap">
-                        {zoneMills.map((ms, i) => {
-                          if (ms < 60_000) return null // skip zones under 1 min
-                          return (
-                            <span key={i} className="flex items-center gap-1 text-[10px] text-muted-foreground tabular-nums">
-                              <span
-                                className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                                style={{ backgroundColor: ZONE_COLORS[i] }}
-                                aria-hidden="true"
-                              />
-                              {ZONE_LABELS[i]} {msToHoursMinutes(ms)}
-                            </span>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )}
+                        {w.strain.toFixed(1)}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">
+                        {w.score_state === 'PENDING_SCORE' ? '…' : 'N/A'}
+                      </span>
+                    )}
+                    <p className="text-[10px] text-muted-foreground">strain</p>
+                  </div>
                 </li>
               )
             })}

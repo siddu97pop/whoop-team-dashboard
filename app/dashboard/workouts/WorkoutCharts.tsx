@@ -127,6 +127,7 @@ export function WorkoutCharts({ workouts }: WorkoutChartsProps) {
                 <YAxis tick={TICK} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
+                  cursor={{ fill: 'hsl(var(--muted))', opacity: 0.5 }}
                   labelFormatter={formatDate}
                   formatter={(v: number) => [v.toFixed(1), 'Total Strain']}
                 />
@@ -161,7 +162,9 @@ export function WorkoutCharts({ workouts }: WorkoutChartsProps) {
                 />
                 <Legend
                   wrapperStyle={{ fontSize: 11 }}
-                  formatter={(value) => value}
+                  formatter={(value) => (
+                    <span style={{ color: '#ffffff' }}>{value}</span>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
