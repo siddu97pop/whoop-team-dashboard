@@ -161,10 +161,7 @@ export function WorkoutCharts({ workouts }: WorkoutChartsProps) {
                   formatter={(v: number, name: string) => [v, name]}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: 11 }}
-                  formatter={(value) => (
-                    <span style={{ color: '#ffffff' }}>{value}</span>
-                  )}
+                  wrapperStyle={{ fontSize: 11, color: '#ffffff' }}
                 />
               </PieChart>
             </ResponsiveContainer>
