@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { randomBytes } from 'crypto'
 
 const WHOOP_AUTH_URL = 'https://api.prod.whoop.com/oauth/oauth2/auth'
@@ -18,15 +17,6 @@ export async function GET() {
   // Generate and store a CSRF state token
   const state = randomBytes(32).toString('hex')
 
-  const cookieStore = await cookies()
-  cookieStore.set('whoop_oauth_state', state, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 60 * 10, // 10 minutes
-    path: '/',
-  })
-
   const params = new URLSearchParams({
     client_id: process.env.WHOOP_CLIENT_ID!,
     redirect_uri: process.env.WHOOP_REDIRECT_URI!,
@@ -35,5 +25,14 @@ export async function GET() {
     state,
   })
 
-  return NextResponse.redirect(`${WHOOP_AUTH_URL}?${params.toString()}`)
+  // Set the state cookie directly on the redirect response so it's always sent
+  const response = NextResponse.redirect(`${WHOOP_AUTH_URL}?${params.toString()}`)
+  response.cookies.set('whoop_oauth_state', state, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 10, // 10 minutes
+    path: '/',
+  })
+  return response
 }
