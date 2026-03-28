@@ -170,7 +170,7 @@ export async function upsertSleep(sleep: Record<string, unknown>) {
   if (error) throw error
 }
 
-export async function deleteSleep(id: string) {
+export async function deleteSleep(id: number) {
   const db = createServiceClient()
   const { error } = await db.from('sleeps').delete().eq('id', id)
   if (error) throw error
@@ -203,7 +203,7 @@ export async function upsertWorkout(workout: Record<string, unknown>) {
   if (error) throw error
 }
 
-export async function deleteWorkout(id: string) {
+export async function deleteWorkout(id: number) {
   const db = createServiceClient()
   const { error } = await db.from('workouts').delete().eq('id', id)
   if (error) throw error
