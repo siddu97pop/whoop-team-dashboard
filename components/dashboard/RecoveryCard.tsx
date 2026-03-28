@@ -32,11 +32,11 @@ export function RecoveryCard({
   const ringColor = RECOVERY_COLORS[zone]
 
   return (
-    <Card>
+    <Card className="h-full flex flex-col">
       <CardHeader>
         <CardTitle>Today's Recovery</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex flex-col flex-1">
         {/* Big score ring */}
         <div className="flex items-center gap-6 mb-6">
           <div
@@ -76,8 +76,8 @@ export function RecoveryCard({
           </div>
         </div>
 
-        {/* Vitals grid */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Vitals grid — mt-auto pushes it down to match sleep card height */}
+        <div className="grid grid-cols-2 gap-3 mt-auto">
           <Vital
             icon={Activity}
             label="HRV"

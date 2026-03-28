@@ -159,6 +159,8 @@ export function WorkoutCharts({ workouts }: WorkoutChartsProps) {
                 </Pie>
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
+                  labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  itemStyle={{ color: 'hsl(var(--foreground))' }}
                   formatter={(v: number, name: string) => [v, name]}
                 />
                 <Legend
