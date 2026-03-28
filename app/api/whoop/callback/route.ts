@@ -91,9 +91,21 @@ export async function GET(request: NextRequest) {
     )
   )
 
-  // Set session cookie so the dashboard knows who's logged in
+  // Set session cookie via a 200 HTML response rather than on a redirect —
+  // Set-Cookie on a 302 can be silently dropped by the Next.js runtime before
+  // the browser sees it. A 200 response guarantees the browser stores the cookie
+  // before the JS redirect fires.
   const session = buildSessionCookie(whoopUserId)
-  const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`)
+  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`
+  const html = `<!DOCTYPE html><html><head>
+<meta http-equiv="refresh" content="0;url=${dashboardUrl}">
+<script>window.location.replace(${JSON.stringify(dashboardUrl)})</script>
+</head><body>Redirecting…</body></html>`
+
+  const response = new NextResponse(html, {
+    status: 200,
+    headers: { 'Content-Type': 'text/html; charset=utf-8' },
+  })
   response.cookies.set(session.name, session.value, session.options)
   return response
 }
