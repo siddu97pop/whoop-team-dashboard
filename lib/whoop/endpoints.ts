@@ -71,7 +71,7 @@ export async function getSleeps(
   return fetchAllPages<WhoopSleep>(userId, `${BASE}/activity/sleep`, params)
 }
 
-export async function getSleepById(userId: number, sleepId: string): Promise<WhoopSleep> {
+export async function getSleepById(userId: number, sleepId: number | string): Promise<WhoopSleep> {
   return whoopGet<WhoopSleep>(userId, `${BASE}/activity/sleep/${sleepId}`)
 }
 
@@ -84,7 +84,7 @@ export async function getWorkouts(
   return fetchAllPages<WhoopWorkout>(userId, `${BASE}/activity/workout`, params)
 }
 
-export async function getWorkoutById(userId: number, workoutId: string): Promise<WhoopWorkout> {
+export async function getWorkoutById(userId: number, workoutId: number | string): Promise<WhoopWorkout> {
   return whoopGet<WhoopWorkout>(userId, `${BASE}/activity/workout/${workoutId}`)
 }
 
